@@ -18,9 +18,13 @@ target_include_directories(voice-common PUBLIC
 # 方式1: CMake config（vcpkg等提供）
 find_package(opus QUIET CONFIG)
 
-if(opus_FOUND)
+if(opus_FOUND AND TARGET opus::opus)
     message(STATUS "Opus: 通过CMake config找到 (vcpkg)")
     target_link_libraries(voice-common PUBLIC opus::opus)
+elseif(opus_FOUND AND TARGET Opus::opus)
+    message(STATUS "Opus: 通过CMake config找到 (vcpkg, target=Opus::opus)")
+    target_link_libraries(voice-common PUBLIC Opus::opus)
+    set(OPUS_FOUND TRUE)
 else()
     # 方式2: pkg-config（Linux/macOS）
     find_package(PkgConfig QUIET)
