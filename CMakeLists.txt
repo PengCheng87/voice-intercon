@@ -62,6 +62,7 @@ endif()
 
 # 编译测试程序
 if(BUILD_TESTS)
+    find_package(Qt5 REQUIRED COMPONENTS Test)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test)
         add_subdirectory(test)
     endif()
