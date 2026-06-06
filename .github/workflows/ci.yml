@@ -38,6 +38,13 @@ jobs:
       - name: Build server
         run: cd build-server && make -j$(nproc) voice-sfu-server
 
+      - name: Upload server binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: voice-sfu-server-linux
+          path: build-server/bin/voice-sfu-server
+          if-no-files-found: error
+
   client-build:
     runs-on: ubuntu-latest
     steps:
@@ -51,3 +58,10 @@ jobs:
 
       - name: Build client
         run: cd build-client && make -j$(nproc) voice-client
+
+      - name: Upload client binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: voice-client-linux
+          path: build-client/bin/voice-client
+          if-no-files-found: error
