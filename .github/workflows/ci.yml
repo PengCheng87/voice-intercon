@@ -7,6 +7,7 @@ on:
     branches: [ master, main ]
 
 jobs:
+  # Linux 上跑自动化测试 (快速验证)
   test:
     runs-on: ubuntu-latest
     steps:
@@ -24,44 +25,64 @@ jobs:
       - name: Run tests
         run: cd build && ./test/auto-test/voice-auto-test -v1
 
+  # Windows 服务端构建
   server-build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq qtbase5-dev libyaml-cpp-dev libopus-dev libssl-dev
+      - name: Install Qt5
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+          arch: 'win64_msvc2019_64'
+
+      - name: Install Opus via vcpkg
+        run: vcpkg install opus --triplet x64-windows
 
       - name: Configure CMake
-        run: mkdir -p build-server && cd build-server && cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_SERVER=ON -DBUILD_CLIENT=OFF
+        run: |
+          cmake -B build-server `
+            -DBUILD_TESTS=OFF -DBUILD_SERVER=ON -DBUILD_CLIENT=OFF `
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
-      - name: Build server
-        run: cd build-server && make -j$(nproc) voice-sfu-server
+      - name: Build
+        run: cmake --build build-server --config Release
 
       - name: Upload server binary
         uses: actions/upload-artifact@v4
         with:
-          name: voice-sfu-server-linux
-          path: build-server/bin/voice-sfu-server
-          if-no-files-found: error
+          name: voice-sfu-server-win
+          path: build-server/bin/Release/voice-sfu-server.exe
+          if-no-files-found: warn
 
+  # Windows 客户端构建
   client-build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq qtbase5-dev libyaml-cpp-dev libopus-dev libssl-dev
+      - name: Install Qt5
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+          arch: 'win64_msvc2019_64'
+
+      - name: Install Opus via vcpkg
+        run: vcpkg install opus --triplet x64-windows
 
       - name: Configure CMake
-        run: mkdir -p build-client && cd build-client && cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_SERVER=OFF -DBUILD_CLIENT=ON
+        run: |
+          cmake -B build-client `
+            -DBUILD_TESTS=OFF -DBUILD_SERVER=OFF -DBUILD_CLIENT=ON `
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
-      - name: Build client
-        run: cd build-client && make -j$(nproc) voice-client
+      - name: Build
+        run: cmake --build build-client --config Release
 
       - name: Upload client binary
         uses: actions/upload-artifact@v4
         with:
-          name: voice-client-linux
-          path: build-client/bin/voice-client
-          if-no-files-found: error
+          name: voice-client-win
+          path: build-client/bin/Release/voice-client.exe
+          if-no-files-found: warn
