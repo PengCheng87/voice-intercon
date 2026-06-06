@@ -1,0 +1,66 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "mingw-debug",
+            "displayName": "MinGW Debug",
+            "description": "Debug build with MinGW (MSYS2)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "C:/msys64/mingw64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/msys64/mingw64/bin/g++.exe",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BUILD_TESTS": "ON",
+                "BUILD_SERVER": "ON",
+                "BUILD_CLIENT": "ON",
+                "CMAKE_PREFIX_PATH": "C:/msys64/mingw64"
+            },
+            "environment": {
+                "PATH": "C:/msys64/mingw64/bin"
+            }
+        },
+        {
+            "name": "mingw-release",
+            "displayName": "MinGW Release",
+            "description": "Release build with MinGW (MSYS2)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build-release",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "C:/msys64/mingw64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "C:/msys64/mingw64/bin/g++.exe",
+                "CMAKE_BUILD_TYPE": "Release",
+                "BUILD_TESTS": "OFF",
+                "BUILD_SERVER": "ON",
+                "BUILD_CLIENT": "ON",
+                "CMAKE_PREFIX_PATH": "C:/msys64/mingw64"
+            },
+            "environment": {
+                "PATH": "C:/msys64/mingw64/bin"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "mingw-debug",
+            "configurePreset": "mingw-debug"
+        },
+        {
+            "name": "mingw-release",
+            "configurePreset": "mingw-release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "mingw-debug",
+            "configurePreset": "mingw-debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": false
+            }
+        }
+    ]
+}

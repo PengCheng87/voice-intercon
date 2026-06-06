@@ -39,3 +39,5 @@ CMakeFiles/
 cmake_install.cmake
 Makefile
 CTestTestfile.cmake
+# Claude
+.claude/
