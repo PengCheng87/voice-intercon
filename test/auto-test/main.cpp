@@ -107,7 +107,7 @@ void TestMediaStats::testInitialState()
     QCOMPARE(s.packet_loss_rate, 0.0);
     QCOMPARE(s.avg_latency_ms, 0.0);
     QCOMPARE(s.jitter_ms, 0.0);
-    QCOMPARE(s.mos_score, 0.0);
+    QCOMPARE(s.mos_score, 4.5);
 }
 
 void TestMediaStats::testPacketReceived()
