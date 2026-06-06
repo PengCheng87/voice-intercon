@@ -53,5 +53,6 @@ target_link_libraries(voice-sfu-server PRIVATE
 
 # 编译选项
 target_compile_options(voice-sfu-server PRIVATE
-    -Wall -Wextra -Wpedantic
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
 )
