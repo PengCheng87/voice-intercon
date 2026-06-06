@@ -1,0 +1,21 @@
+server:
+  url: "ws://patient_device.local:8080"
+  room: "surgery_001"
+  user: "doctor_a"
+  role: "doctor"
+
+audio:
+  input_device: "default"
+  output_device: "default"
+  sample_rate: 48000
+  channels: 1
+  bitrate: 64000
+  aec_enabled: true
+  aec_mode: "standard"
+
+logging:
+  level: "info"
+  file: "voice-client.log"
+
+control:
+  port: 9090

@@ -1,0 +1,146 @@
+name: voice-intercom CI
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  # ============================================================
+  # Job 1: 自动化测试（无 GUI 依赖）
+  # ============================================================
+  auto-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            g++ \
+            qtbase5-dev \
+            qtbase5-dev-tools \
+            libqt5network5 \
+            libspdlog-dev \
+            libyaml-cpp-dev \
+            nlohmann-json3-dev \
+            libopus-dev \
+            libssl-dev
+
+      - name: Configure
+        run: |
+          mkdir -p build && cd build
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTS=ON \
+            -DBUILD_SERVER=OFF \
+            -DBUILD_CLIENT=OFF
+
+      - name: Build auto-test
+        run: cmake --build build --target voice-auto-test -- -j$(nproc)
+
+      - name: Run auto-test
+        run: ./build/bin/voice-auto-test -v1
+
+      - name: Upload test log on failure
+        if: failure()
+        run: cat ./build/Testing/Temporary/LastTest.log 2>/dev/null || true
+
+  # ============================================================
+  # Job 2: 完整服务端构建
+  # ============================================================
+  server-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake g++ qtbase5-dev libqt5network5 \
+            libspdlog-dev libyaml-cpp-dev \
+            nlohmann-json3-dev libopus-dev libssl-dev
+
+      - name: Configure (full server)
+        run: |
+          mkdir -p build-server && cd build-server
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=OFF \
+            -DBUILD_SERVER=ON \
+            -DBUILD_CLIENT=OFF
+
+      - name: Build server
+        run: cmake --build build-server --target voice-sfu-server -- -j$(nproc)
+
+  # ============================================================
+  # Job 3: 完整客户端构建
+  # ============================================================
+  client-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake g++ qtbase5-dev libqt5network5 \
+            libspdlog-dev libyaml-cpp-dev \
+            nlohmann-json3-dev libopus-dev libssl-dev
+
+      - name: Configure (full client)
+        run: |
+          mkdir -p build-client && cd build-client
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=OFF \
+            -DBUILD_SERVER=OFF \
+            -DBUILD_CLIENT=ON
+
+      - name: Build client
+        run: cmake --build build-client --target voice-client -- -j$(nproc)
+
+  # ============================================================
+  # Job 4: GUI 测试程序构建（验证编译）
+  # ============================================================
+  test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake g++ qtbase5-dev libqt5network5 \
+            qtbase5-dev-tools libqt5widgets5 \
+            libspdlog-dev libyaml-cpp-dev \
+            nlohmann-json3-dev libopus-dev libssl-dev
+
+      - name: Configure (all tests)
+        run: |
+          mkdir -p build-tests && cd build-tests
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTS=ON \
+            -DBUILD_SERVER=ON \
+            -DBUILD_CLIENT=ON
+
+      - name: Build all test targets
+        run: |
+          cmake --build build-tests --target voice-auto-test -- -j$(nproc)
+          cmake --build build-tests --target voice-sfu-server-test -- -j$(nproc)
+          cmake --build build-tests --target voice-client-test -- -j$(nproc)

@@ -1,0 +1,25 @@
+server:
+  url: "ws://localhost:8080"
+  room: "surgery_001"
+  user: "patient_device"
+  role: "host"
+
+audio:
+  input_device: "default"
+  output_device: "手术室音响"
+  sample_rate: 48000
+  channels: 1
+  bitrate: 64000
+  aec_enabled: true
+  aec_mode: "aggressive"
+
+external_audio:
+  enabled: true
+  virtual_device: "Virtual Audio Cable"
+
+logging:
+  level: "info"
+  file: "voice-client-patient.log"
+
+control:
+  port: 9090

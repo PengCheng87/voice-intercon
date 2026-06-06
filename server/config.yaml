@@ -1,0 +1,9 @@
+server:
+  signaling_port: 8080
+  media_port_min: 4000
+  media_port_max: 4010
+  max_participants: 16
+
+logging:
+  level: info
+  file: voice-sfu-server.log

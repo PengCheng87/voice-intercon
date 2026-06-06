@@ -1,0 +1,41 @@
+# Build directories
+build*/
+**/build/
+cmake-build-*/
+
+# IDE
+.idea/
+.vscode/
+*.user
+*.pro.user*
+CMakeSettings.json
+
+# Qt
+*.pro.user.*
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+
+# Generated certificates
+server.crt
+server.key
+
+# Logs
+*.log
+voice-sfu-server.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
