@@ -3,6 +3,7 @@
 #include <random>
 #include <sstream>
 #include <iomanip>
+#include <string>
 
 DtlsSrtpSession::DtlsSrtpSession()
     : is_server_(false)
@@ -45,6 +46,21 @@ bool DtlsSrtpSession::process_dtls_packet(const uint8_t* data, size_t len, std::
     if (!handshake_complete_) {
         response.clear();
         handshake_complete_ = true;
+
+        // 模拟 DTLS 密钥协商：用远端指纹解码出远端密钥，
+        // 与本端密钥 XOR 得到共享密钥（双方计算结果一致）
+        if (!remote_fingerprint_.empty()) {
+            std::vector<uint8_t> remote_key(key_material_.size(), 0);
+            std::string hex;
+            for (char c : remote_fingerprint_)
+                if (c != ':') hex += c;
+            for (size_t i = 0; i < remote_key.size() && i * 2 + 1 < hex.size(); ++i) {
+                auto sub = hex.substr(i * 2, 2);
+                remote_key[i] = static_cast<uint8_t>(std::stoi(sub, nullptr, 16));
+            }
+            for (size_t i = 0; i < key_material_.size(); ++i)
+                key_material_[i] ^= remote_key[i];
+        }
         return true;
     }
     return false;
